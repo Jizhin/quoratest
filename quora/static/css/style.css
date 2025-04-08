@@ -1,0 +1,25 @@
+body {
+    padding-top: 20px;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+
+.navbar {
+    margin-bottom: 20px;
+}
+
+.answer {
+    margin-left: 20px;
+    border-left: 2px solid #eee;
+    padding-left: 15px;
+}
+
+.like-btn {
+    cursor: pointer;
+}
+
+.like-count {
+    margin-left: 5px;
+}

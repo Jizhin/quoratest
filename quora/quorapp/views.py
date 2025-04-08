@@ -1,83 +1,55 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Question, Answer
-from .serializers import QuestionSerializer, AnswerSerializer
-from django.shortcuts import get_object_or_404
+from .forms import QuestionForm, AnswerForm
+
+def index(request):
+    questions = Question.objects.all().order_by('-created_at')
+    return render(request, 'index.html', {'questions': questions})
+
+@login_required
+def question_detail(request, pk):
+    question = get_object_or_404(Question, pk=pk)
+    answers = question.answers.all().order_by('-created_at')
+    return render(request, 'question_details.html', {
+        'question': question,
+        'answers': answers
+    })
+
+@login_required
+def ask_question(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.author = request.user
+            question.save()
+            return redirect('question_detail', pk=question.pk)
+    else:
+        form = QuestionForm()
+    return render(request, 'ask_question.html', {'form': form})
 
 
+@login_required
+def post_answer(request , question_id):
+    question = get_object_or_404(Question , pk=question_id)
 
-class QuestionListCreateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    if request.method == 'POST':
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            answer = form.save(commit=False)
+            answer.question = question
+            answer.author = request.user
+            answer.save()
+            return redirect('index')
 
-    def get(self, request):
-        questions = Question.objects.all().order_by('-created_at')
-        serializer = QuestionSerializer(questions, many=True)
-        return Response(serializer.data)
+    return redirect('index')
 
-    def post(self, request):
-        serializer = QuestionSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(author=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class QuestionDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self, pk):
-        return get_object_or_404(Question, pk=pk)
-
-    def get(self, request, pk):
-        question = self.get_object(pk)
-        serializer = QuestionSerializer(question)
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-        question = self.get_object(pk)
-        if question.author != request.user:
-            return Response(
-                {'error': 'You are not the author of this question'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        serializer = QuestionSerializer(question, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        question = self.get_object(pk)
-        if question.author != request.user:
-            return Response(
-                {'error': 'You are not the author of this question'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        question.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-class AnswerCreateAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, question_pk):
-        question = get_object_or_404(Question, pk=question_pk)
-        serializer = AnswerSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(question=question, author=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class LikeAnswerAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, answer_pk):
-        answer = get_object_or_404(Answer, pk=answer_pk)
-        if request.user in answer.likes.all():
-            answer.likes.remove(request.user)
-            message = 'Answer unliked'
-        else:
-            answer.likes.add(request.user)
-            message = 'Answer liked'
-        serializer = AnswerSerializer(answer)
-        return Response({'message': message, 'answer': serializer.data})
+@login_required
+def like_answer(request, answer_id):
+    answer = get_object_or_404(Answer, id=answer_id)
+    if request.user in answer.likes.all():
+        answer.likes.remove(request.user)
+    else:
+        answer.likes.add(request.user)
+    return redirect('question_detail', pk=answer.question.pk)

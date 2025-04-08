@@ -1,14 +1,10 @@
 from django.urls import path
-from .views import (
-    QuestionListCreateAPIView,
-    QuestionDetailAPIView,
-    AnswerCreateAPIView,
-    LikeAnswerAPIView
-)
+from . import views
 
 urlpatterns = [
-    path('questions/', QuestionListCreateAPIView.as_view(), name='question-list'),
-    path('questions/<int:pk>/', QuestionDetailAPIView.as_view(), name='question-detail'),
-    path('questions/<int:question_pk>/answers/', AnswerCreateAPIView.as_view(), name='answer-create'),
-    path('answers/<int:answer_pk>/like/', LikeAnswerAPIView.as_view(), name='answer-like'),
+    path('', views.index, name='index'),
+    path('question/<int:pk>/', views.question_detail, name='question_detail'),
+    path('ask/', views.ask_question, name='ask_question'),
+    path('question/<int:question_id>/answer/' , views.post_answer , name='post_answer') ,
+    path('like/<int:answer_id>/', views.like_answer, name='like_answer'),
 ]

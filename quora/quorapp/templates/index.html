@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Questions</h1>
+        
+        {% for question in questions %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <a href="{% url 'question_detail' question.id %}"> <h2 class="card-title" >{{ question.title }}</h2></a>
+                <p class="card-text">{{ question.content }}</p>
+                <p class="text-muted">Asked by {{ question.author.username }} on {{ question.created_at }}</p>
+                
+                <!-- Answer form for each question -->
+                <form method="post" action="{% url 'post_answer' question.id %}" class="mt-3">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" placeholder="Write your answer..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Answer</button>
+                </form>
+                
+                <!-- Existing answers -->
+                <div class="mt-4">
+                    <h5>Answers:</h5>
+                    {% for answer in question.answers.all %}
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p>{{ answer.content }}</p>
+                            <p class="text-muted">
+                                Answered by {{ answer.author.username }} on {{ answer.created_at }}
+                                <a href="{% url 'like_answer' answer.id %}" class="btn btn-sm btn-outline-primary ms-2">
+                                    Like ({{ answer.likes.count }})
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No answers yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">No questions yet.</div>
+        {% endfor %}
+    </div>
+{% endblock %}
