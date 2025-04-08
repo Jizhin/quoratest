@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
+from django.contrib.auth import logout
 
 def register_view(request):
     if request.method == 'POST':
@@ -28,3 +29,8 @@ def login_view(request):
         else:
             messages.error(request, 'Invalid username or password')
     return render(request, 'login.html')
+
+
+def custom_logout(request):
+    logout(request)
+    return redirect('login')
