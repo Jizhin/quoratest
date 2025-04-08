@@ -4,8 +4,19 @@ from .models import Question, Answer
 from .forms import QuestionForm, AnswerForm
 
 def index(request):
-    questions = Question.objects.all().order_by('-created_at')
-    return render(request, 'index.html', {'questions': questions})
+    query = request.GET.get('query')
+    if query:
+        questions = Question.objects.filter(title__icontains=query)
+        data = query
+        number = questions.count()
+        return render(request, 'index.html', {'questions': questions, 'query': str(data), 'number': number})
+    else:
+        questions = Question.objects.all().order_by('-created_at')
+        data = ""
+        number = questions.count()
+        return render(request, 'index.html', {'questions': questions, 'query': str(data), 'number': number})
+
+
 
 @login_required
 def question_detail(request, pk):
