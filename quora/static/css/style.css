@@ -1,25 +1,57 @@
+/* Global Styles */
 body {
-    padding-top: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
 }
 
-.card {
-    margin-bottom: 20px;
-}
-
+/* Navbar Customization */
 .navbar {
-    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.answer {
-    margin-left: 20px;
-    border-left: 2px solid #eee;
-    padding-left: 15px;
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #dc3545 !important; /* Quora-style red */
 }
 
-.like-btn {
-    cursor: pointer;
+.nav-link {
+    font-size: 1rem;
+    margin-right: 10px;
+    transition: color 0.2s ease;
 }
 
-.like-count {
-    margin-left: 5px;
+.nav-link:hover {
+    color: #dc3545 !important;
+}
+
+/* Flash Messages */
+.alert {
+    border-radius: 0.4rem;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Content Container */
+.container {
+    max-width: 960px;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-primary:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
+/* Responsive spacing for mobile */
+@media (max-width: 576px) {
+    .navbar-nav .nav-item {
+        text-align: center;
+    }
 }
